@@ -1,0 +1,295 @@
+<!--
+WARNING: THIS IS AN AUTO-GENERATED FILE. CHANGES TO IT ARE LIKELY TO BE
+OVERWRITTEN AND LOST. Changes to this xml configuration should be made using:
+  virsh edit win10
+or other application using the libvirt API.
+-->
+
+<domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
+  <name>win10</name>
+  <uuid>15ab897b-2894-48df-8584-85ac3fe91797</uuid>
+  <metadata>
+    <libosinfo:libosinfo xmlns:libosinfo="http://libosinfo.org/xmlns/libvirt/domain/1.0">
+      <libosinfo:os id="http://microsoft.com/win/10"/>
+    </libosinfo:libosinfo>
+  </metadata>
+  <memory unit='KiB'>16777216</memory>
+  <currentMemory unit='KiB'>16777216</currentMemory>
+  <memoryBacking>
+    <hugepages/>
+    <nosharepages/>
+    <locked/>
+    <allocation mode='immediate'/>
+  </memoryBacking>
+  <vcpu placement='static' current='6'>32</vcpu>
+  <vcpus>
+    <vcpu id='0' enabled='yes' hotpluggable='no'/>
+    <vcpu id='1' enabled='no' hotpluggable='yes'/>
+    <vcpu id='2' enabled='yes' hotpluggable='yes'/>
+    <vcpu id='3' enabled='no' hotpluggable='yes'/>
+    <vcpu id='4' enabled='yes' hotpluggable='yes'/>
+    <vcpu id='5' enabled='no' hotpluggable='yes'/>
+    <vcpu id='6' enabled='no' hotpluggable='yes'/>
+    <vcpu id='7' enabled='no' hotpluggable='yes'/>
+    <vcpu id='8' enabled='yes' hotpluggable='yes'/>
+    <vcpu id='9' enabled='no' hotpluggable='yes'/>
+    <vcpu id='10' enabled='yes' hotpluggable='yes'/>
+    <vcpu id='11' enabled='no' hotpluggable='yes'/>
+    <vcpu id='12' enabled='yes' hotpluggable='yes'/>
+    <vcpu id='13' enabled='no' hotpluggable='yes'/>
+    <vcpu id='14' enabled='no' hotpluggable='yes'/>
+    <vcpu id='15' enabled='no' hotpluggable='yes'/>
+    <vcpu id='16' enabled='no' hotpluggable='yes'/>
+    <vcpu id='17' enabled='no' hotpluggable='yes'/>
+    <vcpu id='18' enabled='no' hotpluggable='yes'/>
+    <vcpu id='19' enabled='no' hotpluggable='yes'/>
+    <vcpu id='20' enabled='no' hotpluggable='yes'/>
+    <vcpu id='21' enabled='no' hotpluggable='yes'/>
+    <vcpu id='22' enabled='no' hotpluggable='yes'/>
+    <vcpu id='23' enabled='no' hotpluggable='yes'/>
+    <vcpu id='24' enabled='no' hotpluggable='yes'/>
+    <vcpu id='25' enabled='no' hotpluggable='yes'/>
+    <vcpu id='26' enabled='no' hotpluggable='yes'/>
+    <vcpu id='27' enabled='no' hotpluggable='yes'/>
+    <vcpu id='28' enabled='no' hotpluggable='yes'/>
+    <vcpu id='29' enabled='no' hotpluggable='yes'/>
+    <vcpu id='30' enabled='no' hotpluggable='yes'/>
+    <vcpu id='31' enabled='no' hotpluggable='yes'/>
+  </vcpus>
+  <iothreads>1</iothreads>
+  <cputune>
+    <vcpupin vcpu='0' cpuset='6'/>
+    <vcpupin vcpu='2' cpuset='7'/>
+    <vcpupin vcpu='4' cpuset='8'/>
+    <vcpupin vcpu='8' cpuset='9'/>
+    <vcpupin vcpu='10' cpuset='10'/>
+    <vcpupin vcpu='12' cpuset='11'/>
+    <emulatorpin cpuset='0,5'/>
+    <iothreadpin iothread='1' cpuset='5'/>
+    <emulatorsched scheduler='rr' priority='1'/>
+    <vcpusched vcpus='0' scheduler='rr' priority='1'/>
+    <vcpusched vcpus='1' scheduler='rr' priority='1'/>
+    <vcpusched vcpus='2' scheduler='rr' priority='1'/>
+    <vcpusched vcpus='3' scheduler='rr' priority='1'/>
+    <vcpusched vcpus='4' scheduler='rr' priority='1'/>
+    <vcpusched vcpus='5' scheduler='rr' priority='1'/>
+    <vcpusched vcpus='6' scheduler='rr' priority='1'/>
+    <vcpusched vcpus='7' scheduler='rr' priority='1'/>
+    <vcpusched vcpus='8' scheduler='rr' priority='1'/>
+    <vcpusched vcpus='9' scheduler='rr' priority='1'/>
+    <vcpusched vcpus='10' scheduler='rr' priority='1'/>
+    <vcpusched vcpus='11' scheduler='rr' priority='1'/>
+    <vcpusched vcpus='12' scheduler='rr' priority='1'/>
+    <iothreadsched iothreads='1' scheduler='rr' priority='1'/>
+  </cputune>
+  <sysinfo type='smbios'>
+    <bios>
+      <entry name='vendor'>LENOVO</entry>
+    </bios>
+    <system>
+      <entry name='manufacturer'>ASUS</entry>
+      <entry name='product'>B450</entry>
+      <entry name='version'>0.9.4</entry>
+    </system>
+    <baseBoard>
+      <entry name='manufacturer'>ASUS</entry>
+      <entry name='product'>20BE0061MC</entry>
+      <entry name='version'>0B98401 Pro</entry>
+      <entry name='serial'>W1KS427111E</entry>
+    </baseBoard>
+    <chassis>
+      <entry name='manufacturer'>Dell Inc.</entry>
+      <entry name='version'>2.12</entry>
+      <entry name='serial'>65X0XF2</entry>
+      <entry name='asset'>40000101</entry>
+      <entry name='sku'>Type3Sku1</entry>
+    </chassis>
+    <oemStrings>
+      <entry>myappname:some arbitrary data</entry>
+      <entry>otherappname:more arbitrary data</entry>
+    </oemStrings>
+  </sysinfo>
+  <os>
+    <type arch='x86_64' machine='pc-q35-5.1'>hvm</type>
+    <loader readonly='yes' type='pflash'>/usr/share/edk2-ovmf/x64/OVMF_CODE.fd</loader>
+    <nvram>/var/lib/libvirt/qemu/nvram/win10-2_VARS.fd</nvram>
+    <boot dev='hd'/>
+    <smbios mode='sysinfo'/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+    <hyperv>
+      <relaxed state='on'/>
+      <vapic state='on'/>
+      <spinlocks state='on' retries='8191'/>
+      <vpindex state='on'/>
+      <synic state='on'/>
+      <stimer state='on'/>
+      <reset state='on'/>
+      <vendor_id state='on' value='1234567890ab'/>
+      <frequencies state='on'/>
+    </hyperv>
+    <kvm>
+      <hidden state='on'/>
+    </kvm>
+    <vmport state='off'/>
+    <ioapic driver='kvm'/>
+  </features>
+  <cpu mode='host-passthrough' check='none' migratable='on'>
+    <topology sockets='1' dies='1' cores='16' threads='2'/>
+    <cache mode='passthrough'/>
+    <feature policy='require' name='x2apic'/>
+    <feature policy='require' name='tsc-deadline'/>
+    <feature policy='require' name='hypervisor'/>
+    <feature policy='require' name='tsc_adjust'/>
+    <feature policy='require' name='clwb'/>
+    <feature policy='require' name='umip'/>
+    <feature policy='require' name='stibp'/>
+    <feature policy='require' name='arch-capabilities'/>
+    <feature policy='require' name='ssbd'/>
+    <feature policy='require' name='cmp_legacy'/>
+    <feature policy='require' name='perfctr_core'/>
+    <feature policy='require' name='wbnoinvd'/>
+    <feature policy='require' name='virt-ssbd'/>
+    <feature policy='require' name='rdctl-no'/>
+    <feature policy='require' name='skip-l1dfl-vmentry'/>
+    <feature policy='require' name='mds-no'/>
+    <feature policy='disable' name='monitor'/>
+    <feature policy='disable' name='svm'/>
+    <feature policy='require' name='topoext'/>
+  </cpu>
+  <clock offset='localtime'>
+    <timer name='rtc' tickpolicy='catchup'/>
+    <timer name='pit' tickpolicy='delay'/>
+    <timer name='hpet' present='no'/>
+    <timer name='kvmclock' present='yes'/>
+    <timer name='hypervclock' present='yes'/>
+  </clock>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+  <pm>
+    <suspend-to-mem enabled='no'/>
+    <suspend-to-disk enabled='no'/>
+  </pm>
+  <devices>
+    <emulator>/usr/bin/qemu-system-x86_64</emulator>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2' discard='unmap'/>
+      <source file='/var/lib/libvirt/images/windows.qcow2'/>
+      <target dev='sda' bus='sata'/>
+      <address type='drive' controller='0' bus='0' target='0' unit='0'/>
+    </disk>
+    <controller type='usb' index='0' model='qemu-xhci' ports='15'>
+      <address type='pci' domain='0x0000' bus='0x02' slot='0x00' function='0x0'/>
+    </controller>
+    <controller type='pci' index='0' model='pcie-root'/>
+    <controller type='pci' index='1' model='pcie-root-port'>
+      <model name='pcie-root-port'/>
+      <target chassis='1' port='0x10'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x0' multifunction='on'/>
+    </controller>
+    <controller type='pci' index='2' model='pcie-root-port'>
+      <model name='pcie-root-port'/>
+      <target chassis='2' port='0x11'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x1'/>
+    </controller>
+    <controller type='pci' index='3' model='pcie-root-port'>
+      <model name='pcie-root-port'/>
+      <target chassis='3' port='0x12'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x2'/>
+    </controller>
+    <controller type='pci' index='4' model='pcie-root-port'>
+      <model name='pcie-root-port'/>
+      <target chassis='4' port='0x13'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x3'/>
+    </controller>
+    <controller type='pci' index='5' model='pcie-root-port'>
+      <model name='pcie-root-port'/>
+      <target chassis='5' port='0x14'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x4'/>
+    </controller>
+    <controller type='pci' index='6' model='pcie-root-port'>
+      <model name='pcie-root-port'/>
+      <target chassis='6' port='0x15'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x5'/>
+    </controller>
+    <controller type='pci' index='7' model='pcie-root-port'>
+      <model name='pcie-root-port'/>
+      <target chassis='7' port='0x8'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x01' function='0x0'/>
+    </controller>
+    <controller type='virtio-serial' index='0'>
+      <address type='pci' domain='0x0000' bus='0x03' slot='0x00' function='0x0'/>
+    </controller>
+    <controller type='sata' index='0'>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x1f' function='0x2'/>
+    </controller>
+    <interface type='network'>
+      <mac address='52:54:00:4f:83:a2'/>
+      <source network='network'/>
+      <model type='e1000e'/>
+      <address type='pci' domain='0x0000' bus='0x01' slot='0x00' function='0x0'/>
+    </interface>
+    <serial type='pty'>
+      <target type='isa-serial' port='0'>
+        <model name='isa-serial'/>
+      </target>
+    </serial>
+    <console type='pty'>
+      <target type='serial' port='0'/>
+    </console>
+    <channel type='spicevmc'>
+      <target type='virtio' name='com.redhat.spice.0'/>
+      <address type='virtio-serial' controller='0' bus='0' port='1'/>
+    </channel>
+    <input type='mouse' bus='ps2'/>
+    <input type='keyboard' bus='ps2'/>
+    <hostdev mode='subsystem' type='pci' managed='yes'>
+      <source>
+        <address domain='0x0000' bus='0x07' slot='0x00' function='0x0'/>
+      </source>
+      <rom file='/var/lib/libvirt/firmware/VFIO_GP104.rom'/>
+      <address type='pci' domain='0x0000' bus='0x05' slot='0x00' function='0x0'/>
+    </hostdev>
+    <hostdev mode='subsystem' type='pci' managed='yes'>
+      <source>
+        <address domain='0x0000' bus='0x07' slot='0x00' function='0x1'/>
+      </source>
+      <address type='pci' domain='0x0000' bus='0x06' slot='0x00' function='0x0'/>
+    </hostdev>
+    <hostdev mode='subsystem' type='usb' managed='no'>
+      <source>
+        <vendor id='0x046d'/>
+        <product id='0xc539'/>
+      </source>
+      <address type='usb' bus='0' port='3'/>
+    </hostdev>
+    <hostdev mode='subsystem' type='usb' managed='no'>
+      <source>
+        <vendor id='0x3297'/>
+        <product id='0x1969'/>
+      </source>
+      <address type='usb' bus='0' port='5'/>
+    </hostdev>
+    <hostdev mode='subsystem' type='usb' managed='yes'>
+      <source>
+        <vendor id='0x0a5c'/>
+        <product id='0x21e2'/>
+      </source>
+      <address type='usb' bus='0' port='1'/>
+    </hostdev>
+    <memballoon model='virtio'>
+      <address type='pci' domain='0x0000' bus='0x04' slot='0x00' function='0x0'/>
+    </memballoon>
+    <rng model='virtio'>
+      <backend model='random'>/dev/urandom</backend>
+      <address type='pci' domain='0x0000' bus='0x07' slot='0x00' function='0x0'/>
+    </rng>
+  </devices>
+  <qemu:commandline>
+    <qemu:arg value='-set'/>
+    <qemu:arg value='device.sata0-0-0.rotation_rate=1'/>
+  </qemu:commandline>
+</domain>

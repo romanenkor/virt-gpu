@@ -1,0 +1,145 @@
+#!/bin/bash -x
+
+# Author: Roman Romanenko <romu4444@gmail.com>
+#
+# Copy this file to /etc/libvirt/hooks, make sure it's called "qemu".
+# After this file is installed, restart libvirt.
+# From now on, you can easily add per-guest qemu hooks.
+# Add your hooks in /etc/libvirt/hooks/qemu.d/vm_name/hook_name/state_name.
+# For a list of available hooks, please refer to https://www.libvirt.org/hooks.html
+#
+
+GUEST_NAME="$1"
+HOOK_NAME="$2"
+STATE_NAME="$3"
+MISC="${@:4}"
+
+BASEDIR="$(dirname $0)"
+
+HOOKPATH="$BASEDIR/qemu.d/$GUEST_NAME/$HOOK_NAME/$STATE_NAME"
+
+PIPE=/tmp/libvirt-gpu.out
+mkfifo $PIPE
+
+function vm_start() {
+	echo 0 > /proc/sys/kernel/nmi_watchdog
+	echo -1 > /proc/sys/kernel/hung_task_check_count
+	echo 120 > /proc/sys/vm/stat_interval
+	echo 3f > /sys/bus/workqueue/devices/writeback/cpumask
+
+	cat /etc/libvirt/qemu/$GUEST_NAME.xml | grep 'address domain' | egrep -o '[x0-9]+' | cut -c 3- | xargs -L4 echo | \
+	while read -r DOMAIN BUS DEVICE FUNCTION; do                                     
+		lspci | grep "$BUS:$DEVICE.$FUNCTION" | grep -qs NVIDIA && touch /tmp/libvirt-gpu-$GUEST_NAME.xml
+	done
+
+	[ -f /tmp/libvirt-gpu-$GUEST_NAME.xml ] || return
+
+	systemctl set-property --runtime -- user.slice AllowedCPUs=0-5
+	systemctl set-property --runtime -- system.slice AllowedCPUs=0-5
+	systemctl set-property --runtime -- init.scope AllowedCPUs=0-5
+
+	mkdir /dev/hugepages1G
+	mount -t hugetlbfs -o pagesize=1G none /dev/hugepages1G
+	mkdir /dev/hugepages2M
+	mount -t hugetlbfs -o pagesize=2M none /dev/hugepages2M
+
+	# Stop display manager
+	systemctl start sshd.service
+	systemctl stop display-manager.service
+	lsof /dev/dri/* | awk '{ print $2 }' | sed '1d' | xargs kill -s KILL
+	## Uncomment the following line if you use GDM
+	#killall gdm-x-session
+
+	# Unbind VTconsoles
+	# Unbind EFI-Framebuffer
+	# Avoid a Race condition by waiting 2 seconds. This can be calibrated to be shorter or longer if required for your system
+	echo 0 > /sys/class/vtconsole/vtcon0/bind
+	echo efi-framebuffer.0 > /sys/bus/platform/drivers/efi-framebuffer/unbind
+	sleep 2
+
+	# Unload all Nvidia drivers
+	grep -qv nouveau /etc/X11/xorg.conf && {
+		modprobe -r nvidia_drm
+		modprobe -r nvidia_modeset
+		modprobe -r nvidia_uvm
+		modprobe -r nvidia
+	}
+	grep -q nouveau /etc/X11/xorg.conf && {
+		modprobe -r nouveau
+	}
+
+	# Unbind the GPU from display driver
+	cat /etc/libvirt/qemu/$GUEST_NAME.xml | grep 'address domain' | egrep -o '[x0-9]+' | cut -c 3- | xargs -L4 echo | \
+	while read -r DOMAIN BUS DEVICE FUNCTION; do                                     
+		virsh nodedev-detach pci_${DOMAIN}_${BUS}_${DEVICE}_${FUNCTION}
+	done
+
+	# Load VFIO Kernel Module  
+	modprobe vfio-pci
+}
+
+function vm_runtime() {
+	for i in $(sed -n -e 's/ \([0-9]\+\):.*/\1/p' /proc/interrupts); do echo '0-5' > /proc/irq/$i/smp_affinity_list; done; >/dev/null 2>&1
+	for i in $(sed -n -e '/vfio/s/ \([0-9]\+\):.*/\1/p' /proc/interrupts); do echo '6-11' > /proc/irq/$i/smp_affinity_list; done; >/dev/null 2>&1
+	for i in /sys/devices/virtual/workqueue/*/cpumask; do echo fc0 > $i; done;
+}
+
+function vm_stop() {
+	echo 1 > /proc/sys/kernel/nmi_watchdog
+	echo 4194304 > /proc/sys/kernel/hung_task_check_count
+	echo 1 > /proc/sys/vm/stat_interval
+	echo ffffffff > /sys/bus/workqueue/devices/writeback/cpumask
+	for i in $(sed -n -e 's/ \([0-9]\+\):.*/\1/p' /proc/interrupts); do echo '0-11' > /proc/irq/$i/smp_affinity_list; done; >/dev/null 2>&1
+
+	cat /etc/libvirt/qemu/$GUEST_NAME.xml | grep 'address domain' | egrep -o '[x0-9]+' | cut -c 3- | xargs -L4 echo | \
+	while read -r DOMAIN BUS DEVICE FUNCTION; do                                     
+		lspci | grep "$BUS:$DEVICE.$FUNCTION" | grep -qs NVIDIA && touch /tmp/libvirt-gpu-$GUEST_NAME.xml
+	done
+
+	[ -f /tmp/libvirt-gpu-$GUEST_NAME.xml ] || return
+
+	systemctl set-property --runtime -- user.slice AllowedCPUs=0-23
+	systemctl set-property --runtime -- system.slice AllowedCPUs=0-23
+	systemctl set-property --runtime -- init.scope AllowedCPUs=0-23
+
+	# Unload VFIO-PCI Kernel Driver
+	modprobe -r vfio-pci
+	modprobe -r vfio_iommu_type1
+	modprobe -r vfio
+	  
+	# Re-Bind GPU to Nvidia Driver
+	cat /etc/libvirt/qemu/$GUEST_NAME.xml | grep 'address domain' | egrep -o '[x0-9]+' | cut -c 3- | xargs -L4 echo | \
+	while read -r DOMAIN BUS DEVICE FUNCTION; do                                     
+		virsh nodedev-reattach pci_${DOMAIN}_${BUS}_${DEVICE}_${FUNCTION}
+	done
+
+	# Rebind VT consoles
+	echo 1 > /sys/class/vtconsole/vtcon0/bind
+	# Some machines might have more than 1 virtual console. Add a line for each corresponding VTConsole
+	#echo 1 > /sys/class/vtconsole/vtcon1/bind
+
+	nvidia-xconfig --query-gpu-info > /dev/null 2>&1
+	echo "efi-framebuffer.0" > /sys/bus/platform/drivers/efi-framebuffer/bind
+
+	grep -qv noveau /etc/X11/xorg.conf && {
+		modprobe nvidia_drm
+		modprobe nvidia_modeset
+		modprobe nvidia_uvm
+		modprobe nvidia
+	}
+	grep -q noveau /etc/X11/xorg.conf && {
+		modrpobe nouveau
+	}
+
+	# Restart Display Manager
+	systemctl start display-manager.service
+}
+
+systemd-cat -t libvirt-gpu < $PIPE &
+exec >$PIPE 2>&1
+
+[ $HOOK_NAME/$STATE_NAME = prepare/begin ] && vm_start
+[ $HOOK_NAME/$STATE_NAME = started/begin ] && vm_runtime
+[ $HOOK_NAME/$STATE_NAME = release/end ] && vm_stop
+
+exec 3>&-
