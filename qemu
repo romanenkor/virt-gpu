@@ -1,3 +1,5 @@
+#!/bin/bash
+# Replace ^ with line below for debugging
 #!/bin/bash -x
 
 # Author: Roman Romanenko <romu4444@gmail.com>
@@ -23,7 +25,6 @@ mkfifo $PIPE
 
 function vm_start() {
 	echo 0 > /proc/sys/kernel/nmi_watchdog
-	echo -1 > /proc/sys/kernel/hung_task_check_count
 	echo 120 > /proc/sys/vm/stat_interval
 	echo 3f > /sys/bus/workqueue/devices/writeback/cpumask
 
@@ -38,10 +39,18 @@ function vm_start() {
 	systemctl set-property --runtime -- system.slice AllowedCPUs=0-5
 	systemctl set-property --runtime -- init.scope AllowedCPUs=0-5
 
+	for i in $(seq 12 23); do
+		echo 0 > /sys/devices/system/cpu/cpu${i}/online
+	done
+
+	echo 1 > /proc/sys/vm/compact_memory
+	echo 3 > /proc/sys/vm/drop_caches
+
 	mkdir /dev/hugepages1G
 	mount -t hugetlbfs -o pagesize=1G none /dev/hugepages1G
 	mkdir /dev/hugepages2M
 	mount -t hugetlbfs -o pagesize=2M none /dev/hugepages2M
+	echo 16 > /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages
 
 	# Stop display manager
 	systemctl start sshd.service
@@ -55,7 +64,7 @@ function vm_start() {
 	# Avoid a Race condition by waiting 2 seconds. This can be calibrated to be shorter or longer if required for your system
 	echo 0 > /sys/class/vtconsole/vtcon0/bind
 	echo efi-framebuffer.0 > /sys/bus/platform/drivers/efi-framebuffer/unbind
-	sleep 2
+	#sleep 3
 
 	# Unload all Nvidia drivers
 	grep -qv nouveau /etc/X11/xorg.conf && {
@@ -86,10 +95,9 @@ function vm_runtime() {
 
 function vm_stop() {
 	echo 1 > /proc/sys/kernel/nmi_watchdog
-	echo 4194304 > /proc/sys/kernel/hung_task_check_count
 	echo 1 > /proc/sys/vm/stat_interval
 	echo ffffffff > /sys/bus/workqueue/devices/writeback/cpumask
-	for i in $(sed -n -e 's/ \([0-9]\+\):.*/\1/p' /proc/interrupts); do echo '0-11' > /proc/irq/$i/smp_affinity_list; done; >/dev/null 2>&1
+	for i in $(sed -n -e 's/ \([0-9]\+\):.*/\1/p' /proc/interrupts); do echo '0-23' > /proc/irq/$i/smp_affinity_list; done; >/dev/null 2>&1
 
 	cat /etc/libvirt/qemu/$GUEST_NAME.xml | grep 'address domain' | egrep -o '[x0-9]+' | cut -c 3- | xargs -L4 echo | \
 	while read -r DOMAIN BUS DEVICE FUNCTION; do                                     
@@ -101,6 +109,12 @@ function vm_stop() {
 	systemctl set-property --runtime -- user.slice AllowedCPUs=0-23
 	systemctl set-property --runtime -- system.slice AllowedCPUs=0-23
 	systemctl set-property --runtime -- init.scope AllowedCPUs=0-23
+
+	for i in $(seq 12 23); do
+		echo 1 > /sys/devices/system/cpu/cpu${i}/online
+	done
+
+	echo 0 > /sys/kernel/mm/hugepages/hugepages-1048576kB/nr_hugepages
 
 	# Unload VFIO-PCI Kernel Driver
 	modprobe -r vfio-pci
@@ -143,3 +157,4 @@ exec >$PIPE 2>&1
 [ $HOOK_NAME/$STATE_NAME = release/end ] && vm_stop
 
 exec 3>&-
+rm -rf $PIPE
