@@ -12,6 +12,9 @@ cinst -y steam deluge firefox freedownloadmanager
 # KMS
 # https://gist.github.com/vikassaini01/802ebf2b445154692d103cb04fd2bb9b
 # https://gist.github.com/nazmul629/ca3f32aa802975d8f8b626dd826ce83e
-slmgr/ipk W269N-WFGWX-YVC9B-4J6C9-T83GX
+slmgr /ipk W269N-WFGWX-YVC9B-4J6C9-T83GX
 slmgr /skms kms.chinancce.com
 slmgr /ato
+
+# Allow to disable password prompt
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\PasswordLess\Device" -Name DevicePasswordLessBuildVersion -Value 0 -Type Dword –Force
